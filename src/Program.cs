@@ -3,7 +3,10 @@ using System.IO;
 
 static bool MatchPattern(string inputLine, string pattern)
 {
-    if (pattern.Length == 1)
+    if (pattern == @"\d")
+    {
+        return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
+    }else if (pattern.Length == 1)
     {
         return inputLine.Contains(pattern);
     }
