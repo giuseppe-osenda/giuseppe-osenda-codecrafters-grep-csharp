@@ -3,17 +3,20 @@ using System.IO;
 
 static bool MatchPattern(string inputLine, string pattern)
 {
-    if (pattern is @"\d" or @"\w" or "[abcd]")
+    var isPositiveCharactersGroupPattern = pattern.Contains('[') && pattern.Contains(']');
+    var isNegativeCharactersGroupPattern = pattern.Contains("[^") && pattern.Contains(']');
+    
+    if (pattern is @"\d" or @"\w" || isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
-    }else if (pattern.Length == 1)
+    }
+
+    if (pattern.Length == 1)
     {
         return inputLine.Contains(pattern);
     }
-    else
-    {
-        throw new ArgumentException($"Unhandled pattern: {pattern}");
-    }
+
+    throw new ArgumentException($"Unhandled pattern: {pattern}");
 }
 
 if (args[0] != "-E")
@@ -37,3 +40,4 @@ else
 {
     Environment.Exit(1);
 }
+
