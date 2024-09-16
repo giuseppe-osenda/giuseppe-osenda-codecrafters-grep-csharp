@@ -3,7 +3,7 @@ using System.IO;
 
 static bool MatchPattern(string inputLine, string pattern)
 {
-    if (pattern == @"\d")
+    if (pattern is @"\d" or @"\w")
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
     }else if (pattern.Length == 1)
