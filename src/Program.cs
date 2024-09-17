@@ -79,8 +79,12 @@ static bool AnyCharPattern(string inputLine, string pattern)
 
 static bool MultiplePattern(string inputLine, string pattern)
 {
+    pattern = pattern.Substring(pattern.IndexOf('(')).Trim('(', ')');
+    
+    Console.WriteLine(pattern);
+
     var needles = pattern.Split('|');
-    Console.WriteLine(needles);
+    
     
     foreach (var needle in needles)
     {
