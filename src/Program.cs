@@ -80,7 +80,7 @@ static bool AnyCharPattern(string inputLine, string pattern)
 static bool MultiplePattern(string inputLine, string pattern)
 {
     var needles = pattern.Split('|');
-
+    Console.WriteLine(needles);
     
     foreach (var needle in needles)
     {
