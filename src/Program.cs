@@ -13,8 +13,9 @@ static bool MatchPattern(string inputLine, string pattern)
     var isNegativeCharactersGroupPattern = pattern.Contains("[^") && pattern.Contains(']');
     var otherPatterns = pattern.Contains(@"\d") || pattern.Contains(@"\w");
     var isAnchorPattern = pattern.Contains('^') && !pattern.Contains('[') && !pattern.Contains(']');
-    Console.WriteLine(isAnchorPattern);
-    if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern)
+    var isEndOfStringPattern = pattern.Contains('$');
+    
+    if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern || isEndOfStringPattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
     }
