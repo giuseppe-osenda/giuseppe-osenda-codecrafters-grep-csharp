@@ -1,6 +1,14 @@
 using System;
 using System.IO;
 
+static bool OneOrMorePatternMatch(string inputLine, string pattern)
+{
+    var plusIndex = pattern.IndexOf('+');
+    var needle = pattern.Substring(0, plusIndex);
+
+    return inputLine.Contains(needle);
+}
+
 static bool MatchPattern(string inputLine, string pattern)
 {
     if (pattern.Length == 1)
@@ -14,12 +22,17 @@ static bool MatchPattern(string inputLine, string pattern)
     var otherPatterns = pattern.Contains(@"\d") || pattern.Contains(@"\w");
     var isAnchorPattern = pattern.Contains('^') && !pattern.Contains('[') && !pattern.Contains(']');
     var isEndOfStringPattern = pattern.Contains('$');
+    var isOneOrMorePattern = pattern.Contains('+');
     
     if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern || isEndOfStringPattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
     }
 
+    if (isOneOrMorePattern)
+    {
+        return OneOrMorePatternMatch(inputLine, pattern);
+    }
     /*
     var anchorIndex = pattern.IndexOf('^');
     var isAnchorPattern = anchorIndex != -1 && anchorIndex == 0 || pattern[anchorIndex - 1] != '[';
