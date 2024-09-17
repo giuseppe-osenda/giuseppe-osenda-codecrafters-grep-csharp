@@ -77,6 +77,19 @@ static bool AnyCharPattern(string inputLine, string pattern)
     return true;
 }
 
+static bool MultiplePattern(string inputLine, string pattern)
+{
+    var needles = pattern.Split('.');
+
+    foreach (var needle in needles)
+    {
+        if (inputLine.Contains(needle))
+            return true;
+    }
+
+    return false;
+}
+
 static bool MatchPattern(string inputLine, string pattern)
 {
     if (pattern.Length == 1)
@@ -93,7 +106,8 @@ static bool MatchPattern(string inputLine, string pattern)
     var isOneOrMorePattern = pattern.Contains('+');
     var isOneOrZeroPattern = pattern.Contains('?');
     var isAnyCharPattern = pattern.Contains('.');
-
+    var isMultiplePattern = pattern.Contains('|');
+    
     if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern || isEndOfStringPattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
@@ -107,7 +121,10 @@ static bool MatchPattern(string inputLine, string pattern)
     
     if (isAnyCharPattern)
         return AnyCharPattern(inputLine, pattern);
-
+    
+    if (isMultiplePattern)
+        return MultiplePattern(inputLine, pattern);
+    
     if (!otherPatterns)
         throw new ArgumentException($"Unhandled pattern: {pattern}");
 
