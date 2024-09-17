@@ -79,8 +79,9 @@ static bool AnyCharPattern(string inputLine, string pattern)
 
 static bool MultiplePattern(string inputLine, string pattern)
 {
-    var needles = pattern.Split('.');
+    var needles = pattern.Split('|');
 
+    
     foreach (var needle in needles)
     {
         if (inputLine.Contains(needle))
