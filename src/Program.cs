@@ -115,8 +115,9 @@ static bool MatchPattern(string inputLine, string pattern)
     var isMultiplePattern = pattern.Contains('|');
     var isBackreferencePattern = System.Text.RegularExpressions.Regex.IsMatch(pattern, @"\\\d");
     var isMultipleBackreferencePattern = System.Text.RegularExpressions.Regex.IsMatch(pattern, @"\\\d\s\\\d");
+    var isComplexPattern = System.Text.RegularExpressions.Regex.IsMatch(pattern, @"\(\s*\\\d\s*\)\s*\\\d");
     
-    if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern || isEndOfStringPattern || isBackreferencePattern || isMultipleBackreferencePattern)
+    if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern || isEndOfStringPattern || isBackreferencePattern || isMultipleBackreferencePattern || isComplexPattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
     }
