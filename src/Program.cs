@@ -1,12 +1,67 @@
-using System;
-using System.IO;
-
 static bool OneOrMorePatternMatch(string inputLine, string pattern)
 {
-    var plusIndex = pattern.IndexOf('+');
-    var needle = pattern.Substring(0, plusIndex);
+    var needles = pattern.Split('+');
 
-    return inputLine.Contains(needle);
+    if (needles.Length == 1)
+    {
+        return inputLine.Contains(needles[0]); //what precede '+' is mandatory 
+    }
+
+    foreach (var needle in needles) 
+    {
+        
+        if (!inputLine.Contains(needle)) //all needles are mandatory
+            return false;
+    }
+
+    return true;
+}
+
+//an? Matches an 'a' followed by zero or one 'n' character.
+static bool OneOrZeroPatternMatch(string inputLine, string pattern)
+{
+    var needles = pattern.Split('?');
+
+    if (needles.Length == 1)
+    {
+        var operatorIndex = pattern.IndexOf('?');
+
+        switch (operatorIndex)
+        {
+            case -1:
+                return false;
+            case <= 1: //0 mean there is only '?' and 1 mean it's optional
+                return true;
+            default:
+            {
+                var needle = pattern.Substring(0, operatorIndex - 1); //taking only mandatory part
+
+                return inputLine.Contains(needle);
+            }
+        }
+    }
+
+    foreach (var needle in needles) //if i have multiple needles
+    {
+        if (needle == needles.Last()) //the last is the only one not precedeed by the '?' then it's all mandatory
+        {
+            return inputLine.Contains(needle);
+        }
+
+        if (needle.Length == 1)
+        {
+            //totally optional   
+        }
+        else
+        {
+            var mandatory = pattern.Substring(0, needle.Length - 1); //taking only mandatory part
+
+            if (!inputLine.Contains(mandatory))
+                return false;
+        }
+    }
+
+    return false;
 }
 
 static bool MatchPattern(string inputLine, string pattern)
@@ -15,49 +70,32 @@ static bool MatchPattern(string inputLine, string pattern)
     {
         return inputLine.Contains(pattern);
     }
- 
-  
+
+
     var isPositiveCharactersGroupPattern = pattern.Contains('[') && pattern.Contains(']');
     var isNegativeCharactersGroupPattern = pattern.Contains("[^") && pattern.Contains(']');
     var otherPatterns = pattern.Contains(@"\d") || pattern.Contains(@"\w");
     var isAnchorPattern = pattern.Contains('^') && !pattern.Contains('[') && !pattern.Contains(']');
     var isEndOfStringPattern = pattern.Contains('$');
     var isOneOrMorePattern = pattern.Contains('+');
-    
+    var isOneOrZeroPattern = pattern.Contains('?');
+
     if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern || isEndOfStringPattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
     }
 
     if (isOneOrMorePattern)
-    {
         return OneOrMorePatternMatch(inputLine, pattern);
-    }
-    /*
-    var anchorIndex = pattern.IndexOf('^');
-    var isAnchorPattern = anchorIndex != -1 && anchorIndex == 0 || pattern[anchorIndex - 1] != '[';
 
-    if (isAnchorPattern)
-    {
-        var stack = inputLine.Split(" ");
-        var needle = pattern.Substring(anchorIndex);
-        
-        foreach (var word in stack)
-        {
-            if (word.Equals(needle))
-                return true;
-        }
+    if (isOneOrZeroPattern)
+        return OneOrZeroPatternMatch(inputLine, pattern);
 
-        return false;
-    }
-    */
-    
-    if(!otherPatterns)
+    if (!otherPatterns)
         throw new ArgumentException($"Unhandled pattern: {pattern}");
 
-    var charIndex = false;
     var offSet = 0;
-    
+
     for (var pos = 0; pos < pattern.Length; pos++)
     {
         //search for \d or \w or a number or a digit if found search for at least a digit or a number in inputLine
@@ -67,89 +105,83 @@ static bool MatchPattern(string inputLine, string pattern)
         var isWhiteSpace = pattern[pos] == ' ';
         var isChar = false;
         var isDigit = false;
-        
+
         if (!isDigitPattern && !isCharPattern && !isWhiteSpace)
         {
-             isDigit = char.IsDigit(pattern[pos]);
-             isChar = char.IsLetter(pattern[pos]);
+            isDigit = char.IsDigit(pattern[pos]);
+            isChar = char.IsLetter(pattern[pos]);
         }
 
+        bool charIndex;
         if (isDigitPattern)
         {
-            Console.WriteLine($"digit pattern at pos {pos} and {pos + 1}");
-            
+            //Console.WriteLine($"digit pattern at pos {pos} and {pos + 1}");
+
             charIndex = false;
-            for (int i = ++offSet; i < inputLine.Length; i++)
+            for (var i = ++offSet; i < inputLine.Length; i++)
             {
-                Console.WriteLine($"start searching digit from pos {i}");
-                if (char.IsDigit(inputLine[i]))
-                {
-                    charIndex = true;
-                    offSet = i;
-                    pos += 1;
-                    Console.WriteLine($"digit found at pos {offSet}");
-                    break;
-                }
+                //Console.WriteLine($"start searching digit from pos {i}");
+                if (!char.IsDigit(inputLine[i])) continue;
+
+                charIndex = true;
+                offSet = i;
+                pos += 1;
+                //Console.WriteLine($"digit found at pos {offSet}");
+                break;
             }
-            
+
             if (charIndex == false)
                 return false;
-            
-            continue;
 
+            continue;
         }
 
         if (isCharPattern)
         {
-            Console.WriteLine($"char pattern at pos {pos} and {pos + 1}");
+            //Console.WriteLine($"char pattern at pos {pos} and {pos + 1}");
             charIndex = false;
-            for (int i = ++offSet; i < inputLine.Length; i++)
+            for (var i = ++offSet; i < inputLine.Length; i++)
             {
-                Console.WriteLine($"start searching char from pos {i}");
-                if (char.IsLetter(inputLine[i]))
-                {
-                    charIndex = true;
-                    offSet = i;
-                    pos += 1;
-                    Console.WriteLine($"char found at pos {offSet}");
-                    break;
-                }
+                //Console.WriteLine($"start searching char from pos {i}");
+                if (!char.IsLetter(inputLine[i])) continue;
+
+                charIndex = true;
+                offSet = i;
+                pos += 1;
+                //Console.WriteLine($"char found at pos {offSet}");
+                break;
             }
-            
+
             if (charIndex == false)
                 return false;
-            
-            continue;
 
+            continue;
         }
 
         if (isWhiteSpace)
         {
-            Console.WriteLine($"whitespace at pos {pos}");
+            //Console.WriteLine($"whitespace at pos {pos}");
             charIndex = false;
-            for (int i = ++offSet; i < inputLine.Length; i++)
+            for (var i = ++offSet; i < inputLine.Length; i++)
             {
-                Console.WriteLine($"start searching whitespace from pos {i}");
-                if (char.IsWhiteSpace(inputLine[i]))
-                {
-                    charIndex = true;
-                    offSet = i;
-                    Console.WriteLine($"whitespace found at pos {offSet}");
-                    break;
-                }
+                //Console.WriteLine($"start searching whitespace from pos {i}");
+                if (!char.IsWhiteSpace(inputLine[i])) continue;
+
+                charIndex = true;
+                offSet = i;
+                //Console.WriteLine($"whitespace found at pos {offSet}");
+                break;
             }
-            
+
             if (charIndex == false)
                 return false;
-            
-            continue;
 
+            continue;
         }
 
         if (isDigit || isChar)
         {
-            
-            Console.WriteLine($"explicit digit or char found at pos {pos} of pattern");
+            //Console.WriteLine($"explicit digit or char found at pos {pos} of pattern");
 
             var isLast = inputLine.IndexOf(inputLine.FirstOrDefault(pattern[pos])).Equals(inputLine.Length);
 
@@ -157,23 +189,21 @@ static bool MatchPattern(string inputLine, string pattern)
             {
                 return inputLine.Last().Equals(pattern[pos]);
             }
-            
+
             charIndex = false;
-            for (int i = ++offSet; i < inputLine.Length; i++)
+            for (var i = ++offSet; i < inputLine.Length; i++)
             {
-                Console.WriteLine($"start searching from pos {i}");
-                if (inputLine[i] == pattern[pos])
-                {
-                    charIndex = true;
-                    offSet = i;
-                    Console.WriteLine($"found explicit digit or char at pos {offSet}");
-                    break;
-                }
+                //Console.WriteLine($"start searching from pos {i}");
+                if (inputLine[i] != pattern[pos]) continue;
+
+                charIndex = true;
+                offSet = i;
+                //Console.WriteLine($"found explicit digit or char at pos {offSet}");
+                break;
             }
-            
+
             if (charIndex == false)
                 return false;
-            
         }
     }
 
