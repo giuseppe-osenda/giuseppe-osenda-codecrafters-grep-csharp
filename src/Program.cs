@@ -7,9 +7,8 @@ static bool OneOrMorePatternMatch(string inputLine, string pattern)
         return inputLine.Contains(needles[0]); //what precede '+' is mandatory 
     }
 
-    foreach (var needle in needles) 
+    foreach (var needle in needles)
     {
-        
         if (!inputLine.Contains(needle)) //all needles are mandatory
             return false;
     }
@@ -64,6 +63,20 @@ static bool OneOrZeroPatternMatch(string inputLine, string pattern)
     return false;
 }
 
+static bool AnyCharPattern(string inputLine, string pattern)
+{
+    var needles = pattern.Split('.');
+
+
+    foreach (var needle in needles) //if i have multiple needles
+    {
+        if (!inputLine.Contains(needle))
+            return false;
+    }
+
+    return true;
+}
+
 static bool MatchPattern(string inputLine, string pattern)
 {
     if (pattern.Length == 1)
@@ -79,6 +92,7 @@ static bool MatchPattern(string inputLine, string pattern)
     var isEndOfStringPattern = pattern.Contains('$');
     var isOneOrMorePattern = pattern.Contains('+');
     var isOneOrZeroPattern = pattern.Contains('?');
+    var isAnyCharPattern = pattern.Contains('.');
 
     if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern || isEndOfStringPattern)
     {
@@ -90,6 +104,9 @@ static bool MatchPattern(string inputLine, string pattern)
 
     if (isOneOrZeroPattern)
         return OneOrZeroPatternMatch(inputLine, pattern);
+    
+    if (isAnyCharPattern)
+        return AnyCharPattern(inputLine, pattern);
 
     if (!otherPatterns)
         throw new ArgumentException($"Unhandled pattern: {pattern}");
@@ -209,6 +226,8 @@ static bool MatchPattern(string inputLine, string pattern)
 
     return true;
 }
+
+
 
 if (args[0] != "-E")
 {
