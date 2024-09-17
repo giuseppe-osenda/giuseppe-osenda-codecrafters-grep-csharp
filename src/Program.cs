@@ -95,6 +95,13 @@ static bool MultiplePattern(string inputLine, string pattern)
     return false;
 }
 
+static bool BackreferencePattern(string inputLine, string pattern)
+{
+    pattern = pattern.Trim('(', ')');
+
+    return true;
+}
+
 static bool MatchPattern(string inputLine, string pattern)
 {
     if (pattern.Length == 1)
@@ -112,8 +119,9 @@ static bool MatchPattern(string inputLine, string pattern)
     var isOneOrZeroPattern = pattern.Contains('?');
     var isAnyCharPattern = pattern.Contains('.');
     var isMultiplePattern = pattern.Contains('|');
+    var isBackreferencePattern = System.Text.RegularExpressions.Regex.IsMatch(pattern, @"\\\d");
     
-    if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern || isEndOfStringPattern)
+    if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern || isEndOfStringPattern || isBackreferencePattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
     }
@@ -129,10 +137,14 @@ static bool MatchPattern(string inputLine, string pattern)
     
     if (isMultiplePattern)
         return MultiplePattern(inputLine, pattern);
-    
+
+    if (isBackreferencePattern)
+    {
+        return BackreferencePattern(inputLine, pattern);
+    }
     if (!otherPatterns)
         throw new ArgumentException($"Unhandled pattern: {pattern}");
-
+    
     var offSet = 0;
 
     for (var pos = 0; pos < pattern.Length; pos++)
