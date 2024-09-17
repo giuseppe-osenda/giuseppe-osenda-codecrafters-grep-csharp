@@ -12,11 +12,31 @@ static bool MatchPattern(string inputLine, string pattern)
     var isPositiveCharactersGroupPattern = pattern.Contains('[') && pattern.Contains(']');
     var isNegativeCharactersGroupPattern = pattern.Contains("[^") && pattern.Contains(']');
     var otherPatterns = pattern.Contains(@"\d") || pattern.Contains(@"\w");
-    
-    if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern)
+    var isAnchorPattern = pattern.Contains('^') && !pattern.Contains('[') && !pattern.Contains(']');
+    Console.WriteLine(isAnchorPattern);
+    if (isPositiveCharactersGroupPattern || isNegativeCharactersGroupPattern || isAnchorPattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, pattern);
     }
+
+    /*
+    var anchorIndex = pattern.IndexOf('^');
+    var isAnchorPattern = anchorIndex != -1 && anchorIndex == 0 || pattern[anchorIndex - 1] != '[';
+
+    if (isAnchorPattern)
+    {
+        var stack = inputLine.Split(" ");
+        var needle = pattern.Substring(anchorIndex);
+        
+        foreach (var word in stack)
+        {
+            if (word.Equals(needle))
+                return true;
+        }
+
+        return false;
+    }
+    */
     
     if(!otherPatterns)
         throw new ArgumentException($"Unhandled pattern: {pattern}");
